@@ -14,12 +14,14 @@ Browser --->  API / UI Controller  (endpoints /api/* + wwwroot)
               Single Relational Database (SQLite, shared schema)
 ```
 
-- **Single process / single deployable unit** — `dotnet run` starts everything.
+- **Single process / single deployable unit** — `dotnet run` or `docker compose up` starts everything.
 - **A separate services layer** (`Services/`) that still runs in the same process and
   against the same schema.
 - **A single relational database** — SQLite (`monolith.db`), created automatically on startup.
 
 ## Running the project
+
+### Locally (dotnet run)
 
 ```bash
 cd src/EcommerceMonolith
@@ -29,6 +31,45 @@ dotnet run
 Open <http://localhost:5088> (the port is configured in `Properties/launchSettings.json`).
 
 Requirements: .NET 9 SDK. Nothing else to install — SQLite comes from the EF Core package.
+
+### With Docker Compose (recommended)
+
+```bash
+docker compose up --build        # http://localhost:5088
+```
+
+| Command | What it does |
+|---|---|
+| `docker compose up --build` | builds the image and starts the app on <http://localhost:5088> |
+| `docker compose logs -f app` | follows the application logs |
+| `docker compose ps` | shows the container and its health status |
+| `docker compose down` | stops and removes the container (the database volume is kept) |
+| `docker compose down -v` | stops everything **and** wipes the database volume |
+
+Change the published port with `APP_PORT=8080 docker compose up` (Windows:
+`$env:APP_PORT=8080; docker compose up`).
+
+### With plain Docker
+
+```bash
+docker build -t ecommerce-monolith .
+docker run --rm -p 5088:8080 -v monolith-data:/app/data ecommerce-monolith
+```
+
+The image alone is enough — no other service is required, because the monolith
+ships its own database.
+
+### How the container is set up
+
+- **Multi-stage build** — `dotnet/sdk:9.0` compiles, `dotnet/aspnet:9.0` runs;
+  only the published output ends up in the final image.
+- **One process, one port** — the app listens on `8080` inside the container and
+  is published on `5088` on the host.
+- **Non-root** — the application runs as the `app` user of the base image.
+- **Persistent database** — the SQLite file lives in `/app/data`, mounted as the
+  named volume `monolith-data`, so the data survives restarts and image upgrades.
+- **`HEALTHCHECK`** — the container reports *healthy* once `GET /health` answers;
+  `docker compose ps` shows that status live.
 
 ## End-to-end features
 
@@ -45,8 +86,12 @@ Requirements: .NET 9 SDK. Nothing else to install — SQLite comes from the EF C
 
 ```
 monolithic-architecture/
+|-- Dockerfile                     # multi-stage build (SDK -> ASP.NET runtime)
+|-- docker-compose.yml             # app + persistent volume for the SQLite database
+|-- .dockerignore
+|-- Monolith.sln
 `-- src/EcommerceMonolith/
-    |-- Program.cs                  # bootstrap of the single process
+    |-- Program.cs                  # bootstrap of the single process (+ /health)
     |-- Api/Endpoints.cs            # API / UI Controller (every /api route lives here)
     |-- Services/                   # modules of the monolith
     |   |-- CatalogService.cs

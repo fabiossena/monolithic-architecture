@@ -24,6 +24,9 @@ builder.Services.ConfigureHttpJsonOptions(o =>
     o.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
 });
 
+// Liveness/readiness probe used by the Docker HEALTHCHECK and by compose.
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -36,5 +39,6 @@ using (var scope = app.Services.CreateScope())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.MapMonolithApi();
+app.MapHealthChecks("/health");
 
 app.Run();

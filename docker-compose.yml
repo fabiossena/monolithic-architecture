@@ -1,0 +1,37 @@
+# ---------------------------------------------------------------------------
+# E-commerce Monolith — docker compose stack.
+#
+#   docker compose up --build       # start the app on http://localhost:5088
+#   docker compose logs -f app      # follow the logs
+#   docker compose down             # stop it (the database volume is kept)
+#   docker compose down -v          # stop it and wipe the database
+#
+# Override the published port with:  APP_PORT=8080 docker compose up
+# ---------------------------------------------------------------------------
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ecommerce-monolith:latest
+    container_name: ecommerce-monolith
+    ports:
+      - "${APP_PORT:-5088}:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: "8080"
+      # Same "single relational database" as the local run, stored in the volume.
+      ConnectionStrings__Sqlite: "Data Source=/app/data/monolith.db"
+    volumes:
+      - monolith-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  monolith-data:

@@ -1,0 +1,26 @@
+# Keep the build context small and the image reproducible.
+
+# Version control / IDE
+.git
+.gitignore
+.vs
+.vscode
+.idea
+
+# Build output (the image builds from source inside Docker)
+**/bin
+**/obj
+
+# Local database — the container creates its own in the /app/data volume
+*.db
+*.db-shm
+*.db-wal
+
+# Docker files themselves
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Docs & misc
+**/*.md
+**/*.user
