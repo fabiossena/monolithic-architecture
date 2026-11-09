@@ -1,0 +1,11 @@
+# Build output
+bin/
+obj/
+*.db
+*.db-shm
+*.db-wal
+.vs/
+
+# Independent repositories living side-by-side in this folder.
+# Each one has its own remote and history, so they must not be tracked here.
+layered-architeture/

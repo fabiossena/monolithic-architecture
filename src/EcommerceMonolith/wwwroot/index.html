@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Monolith Store — E-commerce Monolith</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#/catalog">
+      <span class="brand-mark">M</span>
+      <span>Monolith<strong>Store</strong></span>
+    </a>
+
+    <nav class="nav">
+      <a href="#/catalog" data-nav="catalog">Catalog</a>
+      <a href="#/orders" data-nav="orders">Orders</a>
+      <a href="#/inventory" data-nav="inventory">Inventory</a>
+    </nav>
+
+    <button class="cart-btn" id="cartBtn" aria-label="Open cart">
+      <span class="cart-ico">🛒</span>
+      <span class="cart-label">Cart</span>
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+  </div>
+</header>
+
+<main id="view" class="view"></main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <strong>Monolith Store</strong> — Single Process · Single Deployable Unit · Single Relational DB
+    </div>
+    <div class="footer-services">
+      <span>Catalog</span><span>Cart</span><span>Orders</span><span>Payments</span><span>Inventory</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Cart drawer -->
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="cartDrawer" aria-hidden="true">
+  <div class="drawer-head">
+    <h2>Your cart</h2>
+    <button class="icon-btn" id="closeCart" aria-label="Close">✕</button>
+  </div>
+  <div class="drawer-body" id="cartBody"></div>
+  <div class="drawer-foot" id="cartFoot"></div>
+</aside>
+
+<!-- Checkout modal -->
+<div class="modal-wrap" id="checkoutModal" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Checkout</h2>
+      <button class="icon-btn" data-close-modal="checkoutModal">✕</button>
+    </div>
+    <form id="checkoutForm" class="modal-body">
+      <div class="field-row">
+        <label>Full name *
+          <input name="customerName" required placeholder="Jane Doe" />
+        </label>
+        <label>E-mail *
+          <input name="email" type="email" required placeholder="jane@email.com" />
+        </label>
+      </div>
+      <label>Address *
+        <input name="address" required placeholder="123 Flower Street" />
+      </label>
+      <div class="field-row">
+        <label>City *
+          <input name="city" required placeholder="Portland" />
+        </label>
+        <label>ZIP code *
+          <input name="zip" required placeholder="97201" />
+        </label>
+      </div>
+      <label>Payment method
+        <select name="paymentMethod">
+          <option value="card">Credit card</option>
+          <option value="pix">Instant payment (Pix)</option>
+          <option value="boleto">Bank slip (boleto)</option>
+        </select>
+      </label>
+
+      <label class="check">
+        <input type="checkbox" name="simulateFailure" />
+        <span>Simulate a <strong>payment failure</strong> (declined — stock is not deducted)</span>
+      </label>
+
+      <div class="checkout-summary" id="checkoutSummary"></div>
+      <p class="form-error" id="checkoutError" hidden></p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" data-close-modal="checkoutModal">Back</button>
+        <button type="submit" class="btn primary" id="payBtn">Pay now</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Order detail modal -->
+<div class="modal-wrap" id="orderModal" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="orderModalTitle">Order</h2>
+      <button class="icon-btn" data-close-modal="orderModal">✕</button>
+    </div>
+    <div class="modal-body" id="orderModalBody"></div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toasts"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
